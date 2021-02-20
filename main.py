@@ -1,6 +1,5 @@
 from datetime import timedelta
-
-from flask_bcrypt import Bcrypt
+from configparser import ConfigParser
 from flask_restful import Api
 from flask_jwt import JWT
 from resources.all_tasks import (AllTasks, SingleTask, AllTasksByStatus,
@@ -9,7 +8,10 @@ from resources.users import Users,User
 from models.all_models import app
 from security import identity, authenticate
 
-app.secret_key = 'warenamanaswe'
+config = ConfigParser()
+config.read('config.ini')
+app.secret_key = config['CONFIGURATION']['SECRET_KEY']
+
 api = Api(app)
 
 app.config['JWT_AUTH_URL_RULE'] = '/login'

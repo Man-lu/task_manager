@@ -1,34 +1,8 @@
-from flask_restful import Resource, fields, marshal_with, abort, reqparse
+from flask_restful import Resource, marshal_with, abort
+from helpers import helpers
 from models.all_models import TaskModel, db, OwnerModel
 from flask_jwt import jwt_required
 import datetime
-
-
-resource_fields = {
-    "id": fields.Integer,
-    "owner_id": fields.Integer,
-    "task_name": fields.String,
-    "task_priority": fields.String,
-    "task_status": fields.String,
-    "date_created": fields.DateTime(dt_format='iso8601'),
-    "due_date": fields.DateTime(dt_format='iso8601') #dt_format='rfc822'
-}
-
-
-task_args = reqparse.RequestParser()
-updated_args = reqparse.RequestParser()
-
-task_args.add_argument("owner_id", type=int, help = "Owner id cannot be blank",required=True)
-task_args.add_argument("task_name", type=str, help = "Task name cannot be blank",required=True)
-task_args.add_argument("task_priority", type=str, help = "Task Priority cannot be blank",required=True)
-task_args.add_argument("task_status", type=str, help = "Task Status cannot be blank",required=True)
-task_args.add_argument("due_date", type=str, help = "Due Date cannot be blank",required=True)
-
-updated_args.add_argument("owner_id", type=int, help = "Task name cannot be blank", required=True)
-updated_args.add_argument("task_name", type=str, help = "Task name cannot be blank",required=True)
-updated_args.add_argument("task_priority", type=str, help = "Task Priority cannot be blank",required=True)
-updated_args.add_argument("task_status", type=str, help = "Task Status cannot be blank",required=True)
-updated_args.add_argument("due_date", type=str, help = "Due Date cannot be blank",required=True)
 
 
 def get_task_by_id(task_id):
@@ -41,35 +15,23 @@ def get_task_by_id(task_id):
 
 def user_updating_id(user_id):
     user_up_id = OwnerModel.query.get(user_id)
-    return user_up_id
+    if user_up_id:
+        return user_up_id
+    else:
+        return False
 
-#
-# class AllTasksAutoMail(Resource):
-#     def get(self):
-#         ts = TaskModel.query.all()
-#         email_tasks = {}
-#         for t in ts:
-#             # print(t.owner.username)
-#             # print(t.task_name)
-#             # with open(f"{t.task_name}.txt", 'w', encoding='utf-8') as f:
-#             #     f.write(f"{t.owner.username}\n")
-#             #     f.write(f"{t.task_name}\n")
-#         print(email_tasks)
-
-        # users = [t.owner_id for t in tasks]
-        # owners_emails = [OwnerModel.query.get(u).username for u in users]
 
 
 class AllTasks(Resource):
-    @marshal_with(resource_fields)
+    @marshal_with(helpers.resource_fields)
     def get(self):
         tasks = TaskModel.query.all()
         return tasks, 200
 
     @jwt_required()
-    @marshal_with(resource_fields)
+    @marshal_with(helpers.resource_fields)
     def post(self):
-        args = task_args.parse_args()
+        args = helpers.task_args.parse_args()
         owner_exists = OwnerModel.query.get(args['owner_id'])
         if owner_exists is None:
             return abort(404, message="User does not exists")
@@ -97,7 +59,7 @@ class AllTasks(Resource):
 
 
 class AllTasksByStatus(Resource):
-    @marshal_with(resource_fields)
+    @marshal_with(helpers.resource_fields)
     def get(self, task_status):
         tasks = TaskModel.query.filter_by(task_status=task_status).all()
 
@@ -108,7 +70,7 @@ class AllTasksByStatus(Resource):
 
 
 class AllTasksByPriority(Resource):
-    @marshal_with(resource_fields)
+    @marshal_with(helpers.resource_fields)
     def get(self,task_priority):
         tasks = TaskModel.query.filter_by(task_priority=task_priority).all()
 
@@ -119,7 +81,7 @@ class AllTasksByPriority(Resource):
 
 
 class AllTasksDue(Resource):
-    @marshal_with(resource_fields)
+    @marshal_with(helpers.resource_fields)
     def get(self):
         current = datetime.date.today()
         current = int(str(current).split("-")[2])
@@ -133,7 +95,7 @@ class AllTasksDue(Resource):
 
 
 class SingleTask(Resource):
-    @marshal_with(resource_fields)
+    @marshal_with(helpers.resource_fields)
     def get(self, task_id):
         single_task = get_task_by_id(task_id)
         if single_task:
@@ -148,11 +110,20 @@ class SingleTask(Resource):
             return {'message': 'Task deleted'}, 200
 
     @jwt_required()
-    @marshal_with(resource_fields)
+    @marshal_with(helpers.resource_fields)
     def put(self, task_id):
+        args = helpers.updated_args.parse_args()
         task_to_update = get_task_by_id(task_id)
+        if task_to_update.owner_id != args['owner_id']:
+            return abort(404, message="Not Authorized")
+        print(args['owner_id'])
+        print(task_to_update.owner_id)
+
+        # updating_id = user_updating_id(task_to_update.owner_id)
+        # print(task_to_update.owner_id)
+        # print(updating_id)
         if task_to_update:
-            args = updated_args.parse_args()
+        #     args = helpers.updated_args.parse_args()
             updated_date = args["due_date"].split("-")
             task_to_update.owner_id = args['owner_id']
             task_to_update.task_name = args['task_name']
