@@ -119,11 +119,7 @@ class SingleTask(Resource):
         print(args['owner_id'])
         print(task_to_update.owner_id)
 
-        # updating_id = user_updating_id(task_to_update.owner_id)
-        # print(task_to_update.owner_id)
-        # print(updating_id)
         if task_to_update:
-        #     args = helpers.updated_args.parse_args()
             updated_date = args["due_date"].split("-")
             task_to_update.owner_id = args['owner_id']
             task_to_update.task_name = args['task_name']
