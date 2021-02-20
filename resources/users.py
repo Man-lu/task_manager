@@ -1,22 +1,10 @@
 from flask_bcrypt import Bcrypt
-from flask_restful import Resource, fields, marshal_with, abort, reqparse
+from flask_restful import Resource, marshal_with, abort
 from models.all_models import OwnerModel, db, app
 from flask_jwt import jwt_required
+from helpers import helpers
 
 bcrypt = Bcrypt(app)
-
-resource_fields_user = {
-    "id": fields.Integer,
-    "owner_name": fields.String,
-    "username": fields.String,
-    "password": fields.String
-}
-
-user_args = reqparse.RequestParser()
-
-user_args.add_argument("owner_name", type=str, help="Name cannot be blank", required=True)
-user_args.add_argument("username", type=str, help="Name cannot be blank",required=True)
-user_args.add_argument("password", type=str, help="Name cannot be blank", required=True)
 
 
 def find_by_id(user_id):
@@ -28,9 +16,9 @@ def find_by_id(user_id):
 
 
 class Users(Resource):
-    @marshal_with(resource_fields_user)
+    @marshal_with(helpers.resource_fields_user)
     def post(self):
-        args = user_args.parse_args()
+        args = helpers.user_args.parse_args()
         user_exists = OwnerModel.query.all()
 
         for user in user_exists:
@@ -44,7 +32,7 @@ class Users(Resource):
         new_user.password = args['password']
         return new_user, 201
 
-    @marshal_with(resource_fields_user)
+    @marshal_with(helpers.resource_fields_user)
     def get(self):
         owners = OwnerModel.query.all()
         return owners, 200
@@ -52,18 +40,18 @@ class Users(Resource):
 
 class User(Resource):
     @jwt_required()
-    @marshal_with(resource_fields_user)
+    @marshal_with(helpers.resource_fields_user)
     def put(self, user_id):
         user_to_update = find_by_id(user_id)
         if user_to_update:
-            args = user_args.parse_args()
+            args = helpers.user_args.parse_args()
             user_to_update.owner_name = args['owner_name']
             user_to_update.username = args['username']
             user_to_update.password = args['password']
             db.session.commit()
             return user_to_update, 200
 
-    @marshal_with(resource_fields_user)
+    @marshal_with(helpers.resource_fields_user)
     def get(self, user_id):
         user = find_by_id(user_id)
         if user:

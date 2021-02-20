@@ -1,6 +1,5 @@
 from datetime import timedelta
-
-from flask_bcrypt import Bcrypt
+from configparser import ConfigParser
 from flask_restful import Api
 from flask_jwt import JWT
 from resources.all_tasks import (AllTasks, SingleTask, AllTasksByStatus,
@@ -9,7 +8,10 @@ from resources.users import Users,User
 from models.all_models import app
 from security import identity, authenticate
 
-app.secret_key = 'warenamanaswe'
+config = ConfigParser()
+config.read('config.ini')
+app.secret_key = config['CONFIGURATION']['SECRET_KEY']
+
 api = Api(app)
 
 app.config['JWT_AUTH_URL_RULE'] = '/login'
@@ -23,7 +25,6 @@ api.add_resource(AllTasksDue, '/api/tasks/overdue')
 api.add_resource(AllTasksByStatus, '/api/status/<string:task_status>')
 api.add_resource(AllTasksByPriority, '/api/priority/<string:task_priority>')
 api.add_resource(SingleTask, '/api/task/<int:task_id>')
-# api.add_resource(AllTasksAutoMail,'/api/tasks/mail')
 
 
 if __name__ == '__main__':
