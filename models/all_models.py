@@ -57,7 +57,7 @@ class TaskModel(db.Model):
     def __repr__(self):
         return f'<Tasks {self.task_name}'
 
-db.create_all()
+# db.create_all()
 
 
 
