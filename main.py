@@ -11,7 +11,7 @@ from security import identity, authenticate
 
 config = ConfigParser()
 config.read('config.ini')
-app.secret_key = os.environ.get("secret")
+app.secret_key = "WarenaManaswe"
 
 api = Api(app)
 
