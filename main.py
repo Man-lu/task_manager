@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from configparser import ConfigParser
 from flask_restful import Api
@@ -10,7 +11,7 @@ from security import identity, authenticate
 
 config = ConfigParser()
 config.read('config.ini')
-app.secret_key = config['CONFIGURATION']['SECRET_KEY']
+app.secret_key = os.environ.get("secret", config['CONFIGURATION']['SECRET_KEY'])
 
 api = Api(app)
 
