@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from flask_restful import Api
 from flask_jwt import JWT
 from resources.all_tasks import (AllTasks, SingleTask, AllTasksByStatus,
-                                 AllTasksByPriority, AllTasksDue)
+                                 AllTasksByPriority, AllTasksDue, AllSingleUserTasks)
 from resources.users import Users,User
 from models.all_models import app
 from security import identity, authenticate
@@ -26,6 +26,7 @@ api.add_resource(AllTasksDue, '/api/tasks/overdue')
 api.add_resource(AllTasksByStatus, '/api/status/<string:task_status>')
 api.add_resource(AllTasksByPriority, '/api/priority/<string:task_priority>')
 api.add_resource(SingleTask, '/api/task/<int:task_id>')
+api.add_resource(AllSingleUserTasks, '/api/tasks/user/<int:owner_id>')
 
 
 if __name__ == '__main__':

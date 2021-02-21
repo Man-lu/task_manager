@@ -131,6 +131,16 @@ class SingleTask(Resource):
             return task_to_update, 200
 
 
+class AllSingleUserTasks(Resource):
+    @marshal_with(helpers.resource_fields)
+    def get(self,owner_id):
+        user_tasks = TaskModel.query.filter_by(owner_id=owner_id).all()
+        if user_tasks:
+            return user_tasks, 200
+        else:
+            return abort(404, message="That User has no tasks")
+
+
 
 
 
