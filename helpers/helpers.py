@@ -10,6 +10,7 @@ resource_fields_user = {
 resource_fields = {
     "id": fields.Integer,
     "owner_id": fields.Integer,
+    "task_owner_name": fields.String,
     "task_name": fields.String,
     "task_priority": fields.String,
     "task_status": fields.String,

@@ -25,7 +25,13 @@ def user_updating_id(user_id):
 class AllTasks(Resource):
     @marshal_with(helpers.resource_fields)
     def get(self):
-        tasks = TaskModel.query.all()
+        all_tasks = TaskModel.query.all()
+        tasks = []
+        for t in all_tasks:
+            task = {"id": t.id, "owner_id": t.owner_id, "task_owner_name": t.owner.owner_name, "task_name": t.task_name,
+                    "task_priority": t.task_priority, "task_status": t.task_status, "date_created": t.date_created,
+                    "due_date": t.due_date}
+            tasks.append(task)
         return tasks, 200
 
     @jwt_required()
