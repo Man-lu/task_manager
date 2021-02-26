@@ -5,19 +5,30 @@ from flask_restful import Api
 from flask_jwt import JWT
 from resources.all_tasks import (AllTasks, SingleTask, AllTasksByStatus,
                                  AllTasksByPriority, AllTasksDue, AllSingleUserTasks)
-from resources.users import Users,User
+from resources.users import Users, User
 from models.all_models import app
-from security import identity, authenticate
+from flask import jsonify
+from security import authenticate, identity as identity_function
 
 config = ConfigParser()
 config.read('config.ini')
-app.secret_key = "WarenaManaswe"
-
+# app.secret_key = ['CONFIGURATION']['SECRET_KEY']
+app.secret_key = os.environ.get("WarenaManaswe")
 api = Api(app)
 
 app.config['JWT_AUTH_URL_RULE'] = '/login'
 app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=1800)
-jwt = JWT(app, authenticate, identity)
+jwt = JWT(app, authenticate, identity_function)
+
+
+@jwt.auth_response_handler
+def customized_response_handler(access_token, identity):
+    return jsonify({
+        'access_token': access_token.decode('utf-8'),
+        'user_id': identity.id,
+        'name': identity.owner_name
+    })
+
 
 api.add_resource(Users, '/api/users')
 api.add_resource(User, '/api/user/<int:user_id>')
