@@ -13,7 +13,7 @@ from security import authenticate, identity as identity_function
 config = ConfigParser()
 config.read('config.ini')
 # app.secret_key = ['CONFIGURATION']['SECRET_KEY']
-app.secret_key = os.environ.get("WarenaManaswe")
+# app.secret_key = os.environ.get("WarenaManaswe")
 api = Api(app)
 
 app.config['JWT_AUTH_URL_RULE'] = '/login'
