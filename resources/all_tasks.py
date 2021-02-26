@@ -21,7 +21,6 @@ def user_updating_id(user_id):
         return False
 
 
-
 class AllTasks(Resource):
     @marshal_with(helpers.resource_fields)
     def get(self):
